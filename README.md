@@ -10,6 +10,7 @@ For more information see http://ac100.wikispaces.com/tegrapart (in russian)
 Usage
 =====
 ./update.py partitiontable.txt
+
 Result:
 Dumped partitions and .gen files
 
