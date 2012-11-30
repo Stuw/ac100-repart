@@ -18,16 +18,6 @@
 import sys
 import struct
 
-print "AC100 repartitioning helper"
-print "WARNING: this is test version! Be careful!"
-
-if len(sys.argv) < 2:
-	print "Usage: ", sys.argv[0], " <partitiontable.txt>"
-	exit(1)
-
-src_file_name = sys.argv[1]
-
-
 # Partition array indexes names
 ID=0
 NAME=1
@@ -277,7 +267,42 @@ def open_file(name):
 
 	return f
 
-def update(file_name):
+
+def detect_storage_size(partitiontable):
+	f = open_file(partitiontable)
+	if f == None:
+		print 'Can\'t detect storage size'
+		return
+
+	partitions = parse_partitiontable(f)
+
+	last = partitions[0]
+
+	# Sort partitions, choose last, calc lat partition size
+	for partition in partitions:
+		if int(last[START]) < int(partition[START]):
+			last = partition
+	
+	size = int(last[START]) + int(last[SIZE])
+	size *= int(last[SECT_SIZE])
+
+	if size > 56000000000:
+		return 64
+	if size > 28000000000:
+		return 32
+	elif size > 14000000000:
+		return 16
+	elif size > 7000000000:
+		return 8
+	else:
+		print 'Can\'t detect storage size'
+		print 'Last partition:', last
+		print 'Size:', size
+		print 
+		return 0
+
+
+def generate_new_partitions(file_name):
 	src_f = open_file(file_name)
 	if src_f == None:
 		exit(1)
@@ -302,5 +327,3 @@ def update(file_name):
 	write_boot_record(partitions, "EM1", em1_records)
 	write_boot_record(partitions, "EM2", em2_records)
 
-
-update(src_file_name)
