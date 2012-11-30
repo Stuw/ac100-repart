@@ -268,18 +268,22 @@ def write_boot_record(partitions, base_name, base_partitions):
 	f.write(bytearray(br))
 
 
-
-
-def update(src_file_name):
-	src_f = ""
+def open_file(name):
+	f = None
 	try:
-		src_f = open(src_file_name, "r")
+		f = open(name, "r")
 	except:
-		print "Can't open ", src_file_name
+		print "Can't open ", name
+
+	return f
+
+def update(file_name):
+	src_f = open_file(file_name)
+	if src_f == None:
 		exit(1)
 
 	partitions = []
-	if src_file_name.endswith(".cfg") or src_file_name.endswith(".conf"):
+	if file_name.endswith(".cfg") or file_name.endswith(".conf"):
 		partitions = parse_config(src_f)
 	else:
 		partitions = parse_partitiontable(src_f)
