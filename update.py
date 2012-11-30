@@ -25,14 +25,8 @@ if len(sys.argv) < 2:
 	print "Usage: ", sys.argv[0], " <partitiontable.txt>"
 	exit(1)
 
-partitiontable_f = ""
-try:
-	partitiontable_f = open(sys.argv[1], "r")
-except:
-	print "Can't open ", sys.argv[1]
-	exit(1)
+src_file_name = sys.argv[1]
 
-partitions=[]
 
 # Partition array indexes names
 ID=0
@@ -41,10 +35,10 @@ START=2
 SIZE=3
 SECT_SIZE=4
 
-def add_partition(id, name, start, size, sect_size):
-	partitions.append([id, name, start, size, sect_size])
+def add_partition(table, id, name, start, size, sect_size):
+	table.append([id, name, start, size, sect_size])
 
-def parse_partitiontable():
+def parse_partitiontable(partitions_file):
 	id=""
 	name=""
 	start=""
@@ -57,8 +51,10 @@ def parse_partitiontable():
 	#StartSector=163584
 	#NumSectors=204800
 	#BytesPerSector=2048
-	
-	for line in partitiontable_f:
+
+	partitions=[]
+
+	for line in partitions_file:
 		line = line.strip()
 		if not line:
 			continue
@@ -74,15 +70,66 @@ def parse_partitiontable():
 			size = value
 		if param == "BytesPerSector":
 			sect_size = value
-			add_partition(id, name, start, size, sect_size)
+			add_partition(partitions, id, name, start, size, sect_size)
 
-def get_partition_by_name(name):
+	return partitions
+
+
+def parse_config(config_file):
+	id=""
+	name=""
+	start=0
+	size=0
+	sect_size=""
+	
+	#[partition]
+	#name=BCT
+	#id=2
+	#type=boot_config_table
+	#allocation_policy=sequential
+	#filesystem_type=basic
+	#size=3145728
+	#file_system_attribute=0
+	#partition_attribute=0
+	#allocation_attribute=8
+	#percent_reserved=0
+
+	partitions=[]
+
+	for line in config_file:
+		line = line.strip()
+		if not line or line == "[device]":
+			continue
+	
+		if line == "[partition]":
+			start = start + size
+			continue;
+
+		param, value = line.split("=")
+		if param == "id":
+			id = value
+		if param == "name":
+			name = value
+		if param == "size":
+			if "0x" in value:
+				size = int(value,  16)
+			else:
+				size = int(value)
+			size = size / 2048
+		if param == "percent_reserved":
+			sect_size = 2048
+			add_partition(partitions, id, name, start, size, sect_size)
+
+	return partitions
+ 
+
+def get_partition_by_name(partitions, name):
 	for partition in partitions:
 		if partition[NAME] == name:
 			return partition
 	return None 
 	
-def partitions_after_mbr():
+def partitions_after_mbr(partitions):
 	count=-1
 	for partition in partitions:
 		if partition[NAME] == "MBR":
@@ -94,23 +141,15 @@ def partitions_after_mbr():
 
 	return count;
 
-def find_all(names):
+def find_all(partitions, names):
 	for partition in partitions:
 		if partition[NAME] in names:
 			names.remove(partition[NAME])
 
 	return len(names) == 0;
 
-parse_partitiontable()
-#print partitions
-
-if partitions_after_mbr() != 7 or not find_all(["MBR", "EM1", "EM2"]):
-	print "WARNING: Non-standard partitioning is detected! Please, re-check script results"
 
 
-mbr_records=[]
-em1_records=[]
-em2_records=[]
 
 def form_boot_record(base, partitions):
 	records = []
@@ -141,17 +180,17 @@ def form_boot_record(base, partitions):
 
 	return records, extended
 
-def form_boot_records():
-	global mbr_records
-	global em1_records
-	global em2_records
+def form_boot_records(partitions):
+	mbr_records=[]
+	em1_records=[]
+	em2_records=[]
 
-	mbr = get_partition_by_name("MBR")
+	mbr = get_partition_by_name(partitions, "MBR")
 	mbr_idx = partitions.index(mbr)
 	post_mbr = partitions[mbr_idx + 1 : ]
 	mbr_records, tmp = form_boot_record(mbr, post_mbr)
 	if len(tmp) == 0:
-		return
+		return mbr_records, em1_records, em2_records
 
 	em1 = tmp[0]
 	if em1[NAME] != "EM1":
@@ -160,7 +199,7 @@ def form_boot_records():
 	post_em1 = tmp[1:]
 	em1_records, tmp = form_boot_record(em1, post_em1)
 	if len(tmp) == 0:
-		return
+		return mbr_records, em1_records, em2_records
 
 	em2 = tmp[0]
 	if em2[NAME] != "EM2":
@@ -169,12 +208,13 @@ def form_boot_records():
 	post_em2 = tmp[1:]
 	em2_records, tmp = form_boot_record(em2, post_em2)
 	if len(tmp) == 0:
-		return
+		return mbr_records, em1_records, em2_records
 
 	print "WARNING: not all partitons were adopted."
 	print "  ", tmp
 
-form_boot_records()
+	return mbr_records, em1_records, em2_records
+
 
 def print_array(name, arr):
 	print "\n", name
@@ -200,7 +240,7 @@ def put_partition_record(br, record):
 	br[offset + START_OFF: offset + START_OFF + 4] = struct.pack("I", int(record[2]))
 	br[offset + SIZE_OFF: offset + SIZE_OFF + 4] = struct.pack("I", int(record[3]))
 
-def write_boot_record(base_name, partitions):
+def write_boot_record(partitions, base_name, base_partitions):
 	if len(partitions) == 0:
 		print "No partitions for", base_name
 		return
@@ -208,7 +248,7 @@ def write_boot_record(base_name, partitions):
 	file_name = "%s.gen" % base_name
 	print "Forming", file_name
 
-	base = get_partition_by_name(base_name)
+	base = get_partition_by_name(partitions, base_name)
 	if base == None:
 		print "Can't find", base_name
 		return
@@ -223,11 +263,40 @@ def write_boot_record(base_name, partitions):
 	br = [0] * int(base[SIZE]) * 2048
 	br[510:512] = [0x55, 0xaa]
 
-	for part in partitions:
+	for part in base_partitions:
 		put_partition_record(br, part)
 	f.write(bytearray(br))
 
-write_boot_record("MBR", mbr_records)
-write_boot_record("EM1", em1_records)
-write_boot_record("EM2", em2_records)
 
+
+
+def update(src_file_name):
+	src_f = ""
+	try:
+		src_f = open(src_file_name, "r")
+	except:
+		print "Can't open ", src_file_name
+		exit(1)
+
+	partitions = []
+	if src_file_name.endswith(".cfg") or src_file_name.endswith(".conf"):
+		partitions = parse_config(src_f)
+	else:
+		partitions = parse_partitiontable(src_f)
+
+	if len(partitions) == 0:
+		print "ERROR: No partitions found in source file %s." % src_file_name
+		exit(1)
+	print partitions
+
+	if partitions_after_mbr(partitions) != 7 or not find_all(partitions, ["MBR", "EM1", "EM2"]):
+		print "WARNING: Non-standard partitioning is detected! Please, re-check script results"
+
+	mbr_records, em1_records, em2_records = form_boot_records(partitions)
+
+	write_boot_record(partitions, "MBR", mbr_records)
+	write_boot_record(partitions, "EM1", em1_records)
+	write_boot_record(partitions, "EM2", em2_records)
+
+
+update(src_file_name)
