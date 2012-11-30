@@ -36,4 +36,5 @@ print "WARNING: this is test version! Be careful!"
 part_table = sys.argv[1]
 size = detect_storage_size(part_table)
 print 'storage size %i Gb' % size
-#generate_new_partitions(src_file_name)
+
+generate_new_partitions(part_table)
