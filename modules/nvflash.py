@@ -74,3 +74,14 @@ def repart(config):
 	return execute('sudo ./externals/nvflash/nvflash -r --bct ac100.bct --setbct --configfile "%s" --create --verifypart -1 --go' % config)
 
 
+if __name__ == '__main__': 
+	ret = init()
+	print "init executed with result %i" % ret
+
+	part_table = 'tests/partitiontable.txt'
+	ret = backup_partitiontable(part_table)
+	if ret == 0:
+		detect_storage_size(part_table)
+	else:
+		print 'Can\'t backup partition table'
+

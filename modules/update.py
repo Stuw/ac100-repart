@@ -336,3 +336,10 @@ def generate_new_partitions(file_name):
 	write_boot_record(partitions, "EM1", em1_records)
 	write_boot_record(partitions, "EM2", em2_records)
 
+
+if __name__ == '__main__': 
+	part_table = sys.argv[1]
+	size = detect_storage_size(part_table)
+	print 'storage size %i Gb' % size
+
+	generate_new_partitions(part_table)
