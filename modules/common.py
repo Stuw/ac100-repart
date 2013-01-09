@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Copyright 2012 Andrey Danin
+# Copyright 2013 Andrey Danin
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,11 +15,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, sys
+import subprocess
 
-sys.path.insert(0, os.path.relpath("./modules"))
-from nvflash import *
 
-print "AC100 repartitioning helper"
-print "WARNING: this is test version! Be careful!"
+def execute( command, verbose = False ):
+	if verbose:
+		print 'cmd "%s" ...' % command 
+
+	ret = subprocess.call(args = command, shell = True)
+	if ret and verbose:
+		print 'ret = %i\n' % (ret)
+
+	return ret
+
+
 

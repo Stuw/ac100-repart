@@ -15,6 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# How to generate new MBR, EM1, EM2 partitions:
+#
+# part_table = sys.argv[1]
+# size = detect_storage_size(part_table)
+# print 'storage size %i Gb' % size
+#
+# generate_new_partitions(part_table)
+
 import sys
 import struct
 
@@ -24,6 +32,7 @@ NAME=1
 START=2
 SIZE=3
 SECT_SIZE=4
+
 
 def add_partition(table, id, name, start, size, sect_size):
 	table.append([id, name, start, size, sect_size])
@@ -235,7 +244,7 @@ def write_boot_record(partitions, base_name, base_partitions):
 		print "No partitions for", base_name
 		return
 
-	file_name = "%s.gen" % base_name
+	file_name = "./generated/%s.gen" % base_name
 	print "Forming", file_name
 
 	base = get_partition_by_name(partitions, base_name)

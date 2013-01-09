@@ -15,28 +15,31 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# How to download partition table:
+#
+#ret = init()
+#print "init executed with result %i" % ret
+#
+#part_table = 'tests/partitiontable.txt'
+#ret = backup_partitiontable(part_table)
+#if ret == 0:
+#	detect_storage_size(part_table)
+#else:
+#	print 'Can\'t backup partition table'
+
+
 import sys
 import struct
-import subprocess
-from update import *
 
-def execute( command, verbose = False ):
-	if verbose:
-		print 'cmd "%s" ...' % command 
-
-	ret = subprocess.call(args = command, shell = True)
-	if ret and verbose:
-		print 'ret = %i\n' % (ret)
-
-	return ret
+from common import execute
 
 
 def init():
-	return execute('sudo ./nvflash --bl bootloader.bin --go')
+	return execute('sudo ./externals/nvflash/nvflash --bl bootloader.bin --sync')
 
 
 def backup():
-	return execute('sudo ./nvflash -r --rawdeviceread 0 1536 ac100-2.img \
+	return execute('sudo ./externals/nvflash/nvflash -r --rawdeviceread 0 1536 ac100-2.img \
 									  --rawdeviceread 1536 256 ac100-3.img \
 									  --rawdeviceread 1792 1024 ac100-4.img \
 									  --rawdeviceread 2816 2560 ac100-5.img \
@@ -49,14 +52,14 @@ def backup():
 
 
 def backup_partitiontable(partitiontable = 'backup_part_table-`date +%F_%T`.txt'):
-	return execute('sudo ./nvflash -r --getpartitiontable "%s" --go' % partitiontable)
+	return execute('sudo ./externals/nvflash/nvflash -r --getpartitiontable "%s" --go' % partitiontable)
 
 
 def restore():
 	mbr = ''
 	em1 = ''
 	em2 = ''
-	return execute('sudo ./nvflash -r --rawdevicewrite 0 1536 ac100-2.img \
+	return execute('sudo ./externals/nvflash/nvflash -r --rawdevicewrite 0 1536 ac100-2.img \
 									  --rawdevicewrite 1536 256 ac100-3.img \
 									  --rawdevicewrite 1792 1024 ac100-4.img \
 									  --rawdevicewrite 2816 2560 ac100-5.img \
@@ -68,6 +71,6 @@ def restore():
 
 
 def repart(config):
-	return execute('sudo ./nvflash -r --bct ac100.bct --setbct --configfile "%s" --create --verifypart -1 --go' % config)
+	return execute('sudo ./externals/nvflash/nvflash -r --bct ac100.bct --setbct --configfile "%s" --create --verifypart -1 --go' % config)
 
 
