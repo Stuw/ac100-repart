@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import subprocess
 
 
@@ -29,4 +30,22 @@ def execute( command, verbose = False ):
 	return ret
 
 
+def binaries():
+	return os.getcwd() + "/binaries"
 
+def externals():
+	return os.getcwd() + "/externals"
+
+def generated():
+	return os.getcwd() + "/generated"
+
+# External
+def bct_dump():
+	return externals() + "/cbootimage/bct_dump"
+
+def cbootimage():
+	return externals() + "/cbootimage/cbootimage"
+
+# Binaries
+def ac100_bct():
+	return binaries() + "/ac100.bct"
