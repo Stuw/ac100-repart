@@ -5,14 +5,19 @@ EXTERNALS="./externals"
 
 mkdir -p "$EXTERNALS"
 
+RES=0
+
+function set_error() {
+	RES=1
+}
 
 # nvflash
 nvflash_zip_url="http://stuw.narod.ru/ac100/nvflash-12alpha.zip"
 if [[ ! -e "${EXTERNALS}/nvflash" ]]; then
-	wget "$nvflash_zip_url" -P "$EXTERNALS"
-	unzip ./externals/nvflash-12alpha.zip -d "$EXTERNALS"
-	chmod a+x "${EXTERNALS}/nvflash/nvflash"
-	chmod a+x "${EXTERNALS}/nvflash/mkbootimg"
+	wget "$nvflash_zip_url" -P "$EXTERNALS" || set_error
+	unzip ./externals/nvflash-12alpha.zip -d "$EXTERNALS" || set_error
+	chmod a+x "${EXTERNALS}/nvflash/nvflash" || set_error
+	chmod a+x "${EXTERNALS}/nvflash/mkbootimg" || set_error
 fi
 
 
@@ -22,12 +27,12 @@ function git_repo() {
 	local repo="$2"
 
 	if [[ ! -e $dir ]]; then
-		git clone $repo $dir
-		pushd $dir
+		git clone $repo $dir || set_error
+		pushd $dir || set_error
 	else
-		pushd $dir
-		git clean -fdx
-		git pull
+		pushd $dir || set_error
+		git clean -fdx || set_error
+		git pull || set_error
 	fi
 }
 
@@ -38,7 +43,7 @@ pushd "$EXTERNALS"
 # cbootimg / bct_dump
 cbootimg_repo="-b master git://gitorious.org/cbootimage/cbootimage.git"
 git_repo "cbootimage" "$cbootimg_repo"
-make
+make || set_error
 popd
 
 
@@ -52,3 +57,5 @@ popd
 
 # EXTERNALS
 popd
+
+exit $RES
