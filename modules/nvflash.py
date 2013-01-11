@@ -73,6 +73,8 @@ def restore():
 def repart(bct, config):
 	return execute('sudo "%s/nvflash/nvflash" -r --bct "%s" --setbct --configfile "%s" --create --verifypart -1 --go' % (externals(), bct, config))
 
+def push_part(id, file):
+	return execute('sudo "%s/nvflash/nvflash" -r --download %d "%s" --sync' % (externals(), id, file))
 
 if __name__ == '__main__': 
 	ret = init()
