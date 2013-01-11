@@ -30,17 +30,24 @@ def execute( command, verbose = False ):
 	return ret
 
 
+def cwd():
+	if cwd.path == None:
+		cwd.path = os.getcwd()
+	return cwd.path
+cwd.path = None
+
+
 def binaries():
-	return os.getcwd() + "/binaries/"
+	return cwd() + "/binaries/"
 
 def configs():
-	return os.getcwd() + "/configs/"
+	return cwd() + "/configs/"
 
 def externals():
-	return os.getcwd() + "/externals/"
+	return cwd() + "/externals/"
 
 def generated():
-	return os.getcwd() + "/generated/"
+	return cwd() + "/generated/"
 
 # External
 def bct_dump():
@@ -52,3 +59,10 @@ def cbootimage():
 # Binaries
 def ac100_bct():
 	return binaries() + "ac100.bct"
+
+
+# Perform cwd initialization	
+if __name__ != '__main__': 
+	cwd()
+
+
