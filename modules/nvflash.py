@@ -31,15 +31,15 @@
 import sys
 import struct
 
-from common import execute
+from common import execute, externals
 
 
 def init():
-	return execute('sudo ./externals/nvflash/nvflash --bl bootloader.bin --sync')
+	return execute('sudo "%s/nvflash/nvflash" --bl bootloader.bin --sync' % externals())
 
 
 def backup():
-	return execute('sudo ./externals/nvflash/nvflash -r --rawdeviceread 0 1536 ac100-2.img \
+	return execute('sudo "%s/nvflash/nvflash" -r --rawdeviceread 0 1536 ac100-2.img \
 									  --rawdeviceread 1536 256 ac100-3.img \
 									  --rawdeviceread 1792 1024 ac100-4.img \
 									  --rawdeviceread 2816 2560 ac100-5.img \
@@ -48,18 +48,18 @@ def backup():
 									  --rawdeviceread 163584 204800 ac100-9.img \
 									  --rawdeviceread 368384 1024 ac100-10.img \
 									  --rawdeviceread 369664 632320 ac100-12.img \
-									  --go')
+									  --go' % externals())
 
 
 def backup_partitiontable(partitiontable = 'backup_part_table-`date +%F_%T`.txt'):
-	return execute('sudo ./externals/nvflash/nvflash -r --getpartitiontable "%s" --go' % partitiontable)
+	return execute('sudo "%s/nvflash/nvflash" -r --getpartitiontable "%s" --go' % (externals(), partitiontable))
 
 
 def restore():
 	mbr = ''
 	em1 = ''
 	em2 = ''
-	return execute('sudo ./externals/nvflash/nvflash -r --rawdevicewrite 0 1536 ac100-2.img \
+	return execute('sudo "%s/nvflash/nvflash" -r --rawdevicewrite 0 1536 ac100-2.img \
 									  --rawdevicewrite 1536 256 ac100-3.img \
 									  --rawdevicewrite 1792 1024 ac100-4.img \
 									  --rawdevicewrite 2816 2560 ac100-5.img \
@@ -67,11 +67,11 @@ def restore():
 									  --rawdevicewrite 9472 512 "%s" \
 									  --rawdevicewrite 477184 256 "%s" \
 									  --rawdevicewrite 2526464 256 "%s" \
-									  --sync' % (mbr, em2, em1))
+									  --sync' % (externals(), mbr, em2, em1))
 
 
-def repart(config):
-	return execute('sudo ./externals/nvflash/nvflash -r --bct ac100.bct --setbct --configfile "%s" --create --verifypart -1 --go' % config)
+def repart(bct, config):
+	return execute('sudo "%s/nvflash/nvflash" -r --bct "%s" --setbct --configfile "%s" --create --verifypart -1 --go' % (externals(), bct, config))
 
 
 if __name__ == '__main__': 
