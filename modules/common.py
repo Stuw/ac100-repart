@@ -44,11 +44,11 @@ def generated():
 
 # External
 def bct_dump():
-	return externals() + "/cbootimage/bct_dump"
+	return externals() + "cbootimage/bct_dump"
 
 def cbootimage():
-	return externals() + "/cbootimage/cbootimage"
+	return externals() + "cbootimage/cbootimage"
 
 # Binaries
 def ac100_bct():
-	return binaries() + "/ac100.bct"
+	return binaries() + "ac100.bct"
