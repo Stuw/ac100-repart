@@ -21,7 +21,7 @@ def menu(commands):
 	choice = None
 	res = None
 	while choice == None: 
-		choice = raw_input("Command: ") 
+		choice = raw_input("\nCommand: ") 
 		if choice in commands: 
 			res = commands[choice][0]() 
 		else: 
