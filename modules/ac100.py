@@ -102,11 +102,6 @@ class AC100:
 		# chdir to ./generated, otherwise nvflash will not find bootloader.bin
 		os.chdir(generated())
 
-		res = init()
-		if res != 0:
-			print "Error: failed to init nvflash"
-			return res
-
 		res = repart(self.bct, self.config)
 		if res != 0:
 			print "Error: failed to repart using nvflash"
