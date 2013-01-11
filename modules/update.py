@@ -241,10 +241,11 @@ def put_partition_record(br, record):
 	br[offset + START_OFF: offset + START_OFF + 4] = struct.pack("I", int(record[2]))
 	br[offset + SIZE_OFF: offset + SIZE_OFF + 4] = struct.pack("I", int(record[3]))
 
-def write_boot_record(partitions, base_name, base_partitions):
+
+def write_boot_record(partitions, base_name, base_partitions, result):
 	if len(partitions) == 0:
 		print "No partitions for", base_name
-		return
+		return None
 
 	file_name = "%s%s.gen" % (generated(), base_name)
 	print "Forming", file_name
@@ -252,14 +253,14 @@ def write_boot_record(partitions, base_name, base_partitions):
 	base = get_partition_by_name(partitions, base_name)
 	if base == None:
 		print "Can't find", base_name
-		return
+		return None
 
 	f = ""
 	try:
 		f = open(file_name, "wb")
 	except:
 		print "Can't open file", file_name, "for writing"
-		return
+		return None
 
 	br = [0] * int(base[SIZE]) * 2048
 	br[510:512] = [0x55, 0xaa]
@@ -267,6 +268,9 @@ def write_boot_record(partitions, base_name, base_partitions):
 	for part in base_partitions:
 		put_partition_record(br, part)
 	f.write(bytearray(br))
+
+	result.append([int(base[ID]), file_name])
+	return result
 
 
 def open_file(name):
@@ -334,15 +338,20 @@ def generate_new_partitions(file_name):
 
 	mbr_records, em1_records, em2_records = form_boot_records(partitions)
 
-	write_boot_record(partitions, "MBR", mbr_records)
-	write_boot_record(partitions, "EM1", em1_records)
-	write_boot_record(partitions, "EM2", em2_records)
+	result = []
+	result = write_boot_record(partitions, "MBR", mbr_records, result)
+	result = write_boot_record(partitions, "EM1", em1_records, result)
+	result = write_boot_record(partitions, "EM2", em2_records, result)
 
-	return 0
+	return 0, result
+
 
 if __name__ == '__main__': 
 	part_table = sys.argv[1]
 	size = detect_storage_size(part_table)
 	print 'storage size %i Gb' % size
 
-	generate_new_partitions(part_table)
+	res, gens = generate_new_partitions(part_table)
+	print 'res: %d' % res
+	for p in gens:
+		print '%d: %s' % (p[0], p[1])

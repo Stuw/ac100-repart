@@ -47,14 +47,13 @@ class AC100:
 		if res != 0:
 			return res
 
-		res = generate_new_partitions(part_table)
+		res, gens = generate_new_partitions(part_table)
 		if res != 0:
 			return res
 
 		#TODO: generate_new_partitions shoud return file names and IDs
-		push_part(7, "MBR.gen")
-		push_part(7, "EM1.gen")
-		push_part(7, "EM2.gen")
+		for g in gens:
+			push_part(g[0], g[1])
 
 		return 0
 
