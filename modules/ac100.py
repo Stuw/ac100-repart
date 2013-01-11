@@ -6,7 +6,8 @@ import sys
 
 from common import ac100_bct, binaries, configs, generated
 from bct import gen_bct
-from nvflash import init, repart, backup_partitiontable
+from update import generate_new_partitions
+from nvflash import init, repart, backup_partitiontable, push_part
 
 
 class AC100:
