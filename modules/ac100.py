@@ -6,7 +6,7 @@ import sys
 
 from common import ac100_bct, binaries, configs, generated
 from bct import gen_bct
-from nvflash import init, repart
+from nvflash import init, repart, backup_partitiontable
 
 
 class AC100:
@@ -31,10 +31,31 @@ class AC100:
 	def repart_vendor(self, bootloader, config):
 		print "AC100 repartition for vendor scheme"
 		self.bootloader = binaries() + bootloader
-		self.config = config
-		self.bct = ac100_bct()
+		self.config = configs() + config
 
-		return self.repart()
+		(res, self.bct) = gen_bct(self.bootloader)
+		if res != 0:
+			return res
+
+		res = self.repart()
+		if res != 0:
+			return res
+
+		part_table = generated() + "partitiontable.txt"
+		res = backup_partitiontable(part_table)
+		if res != 0:
+			return res
+
+		res = generate_new_partitions(part_table)
+		if res != 0:
+			return res
+
+		#TODO: generate_new_partitions shoud return file names and IDs
+		push_part(7, "MBR.gen")
+		push_part(7, "EM1.gen")
+		push_part(7, "EM2.gen")
+
+		return 0
 
 
 	def check_files(self):
@@ -91,6 +112,5 @@ class AC100:
 			print "Error: failed to repart using nvflash"
 			return res
 
-		print "Error: not implemented yet"
-		return 1
+		return 0
 
