@@ -20,27 +20,27 @@ import os
 from common import execute, bct_dump, cbootimage, ac100_bct, generated, binaries
 
 def gen_bct(bootloader):
-	bct_config = generated() + "/bct.cfg"
+	bct_config = generated() + "bct.cfg"
 
 	#./bct_dump ./ac100.bct.orig > bct.cfg
 	res = execute(bct_dump() + " " + ac100_bct() + " > " + bct_config)
 	if res != 0:
-		return res
+		return res, None
 
 	# Add bootloader at the end of bct.cfg
 	res = execute("echo 'BootLoader = " + bootloader + ",0x00108000,0x00108000,Complete;' >> " + bct_config)
 	if res != 0:
-		return res
+		return res, None
 
-	new_bct = generated() + "/ac100.bct"
+	new_bct = generated() + "ac100.bct"
 	#./cbootimage -d ./bct.cfg ac100.bct.new
 	res = execute(cbootimage() + " -d " + bct_config + " " + new_bct)
 	if res != 0:
-		return res
+		return res, None
 
 	res = execute("truncate " + new_bct + " -s 4080")
 	if res != 0:
-		return res
+		return res, None
 
-	return 0
+	return 0, new_bct
 

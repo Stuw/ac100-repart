@@ -31,13 +31,16 @@ def execute( command, verbose = False ):
 
 
 def binaries():
-	return os.getcwd() + "/binaries"
+	return os.getcwd() + "/binaries/"
+
+def configs():
+	return os.getcwd() + "/configs/"
 
 def externals():
-	return os.getcwd() + "/externals"
+	return os.getcwd() + "/externals/"
 
 def generated():
-	return os.getcwd() + "/generated"
+	return os.getcwd() + "/generated/"
 
 # External
 def bct_dump():
