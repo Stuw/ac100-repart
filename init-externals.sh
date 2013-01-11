@@ -11,6 +11,8 @@ nvflash_zip_url="http://stuw.narod.ru/ac100/nvflash-12alpha.zip"
 if [[ ! -e "${EXTERNALS}/nvflash" ]]; then
 	wget "$nvflash_zip_url" -P "$EXTERNALS"
 	unzip ./externals/nvflash-12alpha.zip -d "$EXTERNALS"
+	chmod a+x "${EXTERNALS}/nvflash/nvflash"
+	chmod a+x "${EXTERNALS}/nvflash/mkbootimg"
 fi
 
 
