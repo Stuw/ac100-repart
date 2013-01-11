@@ -46,7 +46,6 @@ def repart_android_ubuntu():
 
 main_commands = { 
 	'q': [(lambda: quit()), "quit"], 
-	'n': [(lambda: None), "no operation, just example"],
 	'u': [(lambda: repart_gpt_uboot()), "repartition ac100 to use u-boot"],
 	'f1': [(lambda: repart_gpt_fastboot(1)), "EXPERIMENTAL repartition ac100 to use gpt and fastboot 2.2 (boot size is 1M)"],
 	'f2': [(lambda: repart_gpt_fastboot(2)), "EXPERIMENTAL repartition ac100 to use gpt and fastboot 2.1 (boot size is 2M)"],
