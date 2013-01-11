@@ -19,7 +19,7 @@ import os
 import subprocess
 
 
-def execute( command, verbose = False ):
+def execute( command, verbose = True ):
 	if verbose:
 		print 'cmd "%s" ...' % command 
 
@@ -55,6 +55,13 @@ def bct_dump():
 
 def cbootimage():
 	return externals() + "cbootimage/cbootimage"
+
+def nvflash():
+	return externals() + "nvflash/nvflash"
+
+def fastboot():
+	return externals() + "nvflash/fastboot.bin"
+
 
 # Binaries
 def ac100_bct():
