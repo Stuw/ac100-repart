@@ -7,6 +7,11 @@ Contains logic to:
 - repartition ac100 for fastboot + gpt
 - repartition ac100 to use android 4.x + ubuntu
 
+Checked:
+- u-boot+gpt case - works fine.
+- android+ubuntu case - repartition works fine
+(generated MBR, EM1, EM2 was not checked yet)
+
 Usage
 =====
 ./main.py
