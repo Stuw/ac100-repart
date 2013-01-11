@@ -26,6 +26,8 @@
 import sys
 import struct
 
+from common import generated
+
 # Partition array indexes names
 ID=0
 NAME=1
@@ -194,7 +196,7 @@ def form_boot_records(partitions):
 	em1 = tmp[0]
 	if em1[NAME] != "EM1":
 		print "WARNING: Incorrect partitioning! EM1 is absent, can't store ", tmp
-		exit(1)
+		return 1
 	post_em1 = tmp[1:]
 	em1_records, tmp = form_boot_record(em1, post_em1)
 	if len(tmp) == 0:
@@ -203,7 +205,7 @@ def form_boot_records(partitions):
 	em2 = tmp[0]
 	if em2[NAME] != "EM2":
 		print "WARNING: Incorrect partitioning! EM2 is absent, can't store ", tmp
-		exit(1)
+		return 1
 	post_em2 = tmp[1:]
 	em2_records, tmp = form_boot_record(em2, post_em2)
 	if len(tmp) == 0:
@@ -244,7 +246,7 @@ def write_boot_record(partitions, base_name, base_partitions):
 		print "No partitions for", base_name
 		return
 
-	file_name = "./generated/%s.gen" % base_name
+	file_name = "%s%s.gen" % (generated(), base_name)
 	print "Forming", file_name
 
 	base = get_partition_by_name(partitions, base_name)
@@ -314,7 +316,7 @@ def detect_storage_size(partitiontable):
 def generate_new_partitions(file_name):
 	src_f = open_file(file_name)
 	if src_f == None:
-		exit(1)
+		return 1
 
 	partitions = []
 	if file_name.endswith(".cfg") or file_name.endswith(".conf"):
@@ -324,7 +326,7 @@ def generate_new_partitions(file_name):
 
 	if len(partitions) == 0:
 		print "ERROR: No partitions found in source file %s." % src_file_name
-		exit(1)
+		return 1
 	print partitions
 
 	if partitions_after_mbr(partitions) != 7 or not find_all(partitions, ["MBR", "EM1", "EM2"]):
@@ -336,6 +338,7 @@ def generate_new_partitions(file_name):
 	write_boot_record(partitions, "EM1", em1_records)
 	write_boot_record(partitions, "EM2", em2_records)
 
+	return 0
 
 if __name__ == '__main__': 
 	part_table = sys.argv[1]
