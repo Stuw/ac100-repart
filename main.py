@@ -7,7 +7,7 @@ import textwrap
 
 sys.path.insert(0, os.path.relpath("./modules"))
 from menu import menu, print_commands
-from common import bct_dump, cbootimage, externals
+from common import bct_dump, cbootimage, externals, generated
 from bct import *
 from ac100 import AC100
 
@@ -31,6 +31,9 @@ main_commands = {
 
 
 def init_externals():
+	if not os.path.isdir(generated()):
+		os.makedirs(generated())
+
 	if  os.path.isfile(bct_dump()) and \
 		os.path.isfile(cbootimage()) and \
 		os.path.isfile(externals() + "nvflash/nvflash"):
