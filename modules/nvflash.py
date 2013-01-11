@@ -48,11 +48,11 @@ def backup():
 									  --rawdeviceread 163584 204800 ac100-9.img \
 									  --rawdeviceread 368384 1024 ac100-10.img \
 									  --rawdeviceread 369664 632320 ac100-12.img \
-									  --go' % nvflash())
+									  --sync' % nvflash())
 
 
 def backup_partitiontable(partitiontable = 'backup_part_table-`date +%F_%T`.txt'):
-	return execute('sudo "%s" -r --getpartitiontable "%s" --go' % (nvflash(), partitiontable))
+	return execute('sudo "%s" -r --getpartitiontable "%s" --sync' % (nvflash(), partitiontable))
 
 
 def restore():
