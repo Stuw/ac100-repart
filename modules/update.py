@@ -317,6 +317,36 @@ def detect_storage_size(partitiontable):
 		return 0
 
 
+def gen_tegrapart(part, name, offset = -2048):
+	return "%s:%x:%x:%x" % (name, int(part[START]) + offset, int(part[SIZE]), int(part[SECT_SIZE]))
+
+
+def calc_tegrapart(partitions):
+	tp_list = []
+
+	tp_list.append([get_partition_by_name(partitions, "SOS"), "recovery"])
+	tp_list.append([get_partition_by_name(partitions, "LNX"), "boot"])
+	tp_list.append([get_partition_by_name(partitions, "MBR"), "mbr"])
+
+	tegrapart_1M = "" 
+	tegrapart_2M = "" 
+	for p in tp_list:
+		if p[0] == None:
+			continue
+
+		if tegrapart_1M != "":
+			tegrapart_1M += ","
+			tegrapart_2M += ","
+		tegrapart_1M = tegrapart_1M + gen_tegrapart(p[0], p[1], -1024)
+		tegrapart_2M = tegrapart_2M + gen_tegrapart(p[0], p[1], -2048)
+
+	if tegrapart_1M != "":
+		tegrapart_1M = "tegrapart=" + tegrapart_1M
+		tegrapart_2M = "tegrapart=" + tegrapart_2M
+
+	return tegrapart_1M, tegrapart_2M
+
+
 def generate_new_partitions(file_name):
 	src_f = open_file(file_name)
 	if src_f == None:
@@ -342,6 +372,10 @@ def generate_new_partitions(file_name):
 	result = write_boot_record(partitions, "MBR", mbr_records, result)
 	result = write_boot_record(partitions, "EM1", em1_records, result)
 	result = write_boot_record(partitions, "EM2", em2_records, result)
+
+	tp1, tp2 = calc_tegrapart(partitions)
+	print tp1
+	print tp2
 
 	return 0, result
 
