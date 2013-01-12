@@ -1,4 +1,5 @@
-#!/bin/env python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import os.path
 import shutil
