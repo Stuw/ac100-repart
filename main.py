@@ -59,7 +59,8 @@ def init_externals():
 
 	if  os.path.isfile(bct_dump()) and \
 		os.path.isfile(cbootimage()) and \
-		os.path.isfile(externals() + "nvflash/nvflash"):
+		os.path.isfile(externals() + "nvflash/nvflash") and \
+		os.path.isfile(externals() + "gpt_surgeon.py"):
 				return None
 	
 	print "Initialize externals..."

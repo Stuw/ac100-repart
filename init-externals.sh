@@ -20,6 +20,13 @@ if [[ ! -e "${EXTERNALS}/nvflash" ]]; then
 	chmod a+x "${EXTERNALS}/nvflash/mkbootimg" || set_error
 fi
 
+# gpt-surgeon.py
+gpt_surgeon_url="http://bat-country.us/code/GPTools/trunk/gpt_surgeon.py?revision=130&view=co"
+gpt_surgeon="${EXTERNALS}/gpt_surgeon.py"
+if [[ ! -e "${gpt_surgeon}" ]]; then
+	wget "${gpt_surgeon_url}" -O "${gpt_surgeon}" || set_error
+	chmod a+x "${gpt_surgeon}" || set_error
+fi
 
 
 function git_repo() {
