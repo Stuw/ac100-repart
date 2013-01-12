@@ -36,6 +36,12 @@ def repart_gpt_fastboot(boot_size):
 	return res
 
 
+def repart_android4():
+	ac100 = AC100()
+	res = ac100.repart_vendor("fastboot-ac100-21.bin", "part-android-4.cfg")
+	print "Repartitioning finished with code %d" % res
+
+	return res
 def repart_android_ubuntu():
 	ac100 = AC100()
 	res = ac100.repart_vendor("fastboot-ac100-21.bin", "part-ubuntu-android.cfg")
@@ -49,7 +55,8 @@ main_commands = {
 	'u': [(lambda: repart_gpt_uboot()), "repartition ac100 to use u-boot"],
 	'f1': [(lambda: repart_gpt_fastboot(1)), "EXPERIMENTAL repartition ac100 to use gpt and fastboot 2.2 (boot size is 1M)"],
 	'f2': [(lambda: repart_gpt_fastboot(2)), "EXPERIMENTAL repartition ac100 to use gpt and fastboot 2.1 (boot size is 2M)"],
-	'a': [(lambda: repart_android_ubuntu()), "EXPERIMENTAL repartition ac100 to use ubuntu + android 4.x"],
+	'a4': [(lambda: repart_android4()), "repartition ac100 to use android 4.x"],
+	'au': [(lambda: repart_android_ubuntu()), "EXPERIMENTAL repartition ac100 to use ubuntu + android 4.x"],
 } 
 
 
