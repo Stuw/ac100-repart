@@ -35,8 +35,8 @@ import struct
 from common import execute, nvflash, fastboot
 
 
-def init():
-	return execute('sudo "%s" --bl "%s" --sync' % (nvflash(), fastboot()))
+def init(bootloader = fastboot()):
+	return execute('sudo "%s" --bl "%s" --sync' % (nvflash(), bootloader))
 
 
 def backup():

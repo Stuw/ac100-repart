@@ -20,6 +20,13 @@ if [[ ! -e "${EXTERNALS}/nvflash" ]]; then
 	chmod a+x "${EXTERNALS}/nvflash/mkbootimg" || set_error
 fi
 
+# uboot sos image
+if [[ ! -e "${EXTERNALS}/uboot-sos.img" ]]; then
+	wget http://ac100.wikispaces.com/file/view/\
+uboot-sos.img/398037302/uboot-sos.img -P "$EXTERNALS" || set_error
+fi
+
+
 # gpt-surgeon.py
 gpt_surgeon_url="http://bat-country.us/code/GPTools/trunk/gpt_surgeon.py?revision=130&view=co"
 gpt_surgeon="${EXTERNALS}/gpt_surgeon.py"

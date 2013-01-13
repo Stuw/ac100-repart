@@ -7,6 +7,7 @@ import textwrap
 
 sys.path.insert(0, os.path.relpath("./modules"))
 from menu import menu, print_commands
+from nvflash import init
 from common import bct_dump, cbootimage, externals, generated
 from bct import *
 from ac100 import AC100
@@ -42,11 +43,19 @@ def repart_android4():
 	print "Repartitioning finished with code %d" % res
 
 	return res
+
+
 def repart_android_ubuntu():
 	ac100 = AC100()
 	res = ac100.repart_vendor("fastboot-ac100-21.bin", "part-ubuntu-android.cfg")
 	print "Repartitioning finished with code %d" % res
 
+	return res
+
+
+def uboot_sos():
+	res = init(externals() + "uboot-sos.img")
+	print "Sos image downloaded with code %d" % res
 	return res
 
 
@@ -57,6 +66,7 @@ main_commands = {
 	'f2': [(lambda: repart_gpt_fastboot(2)), "EXPERIMENTAL repartition ac100 to use gpt and fastboot 2.1 (boot size is 2M)"],
 	'a4': [(lambda: repart_android4()), "repartition ac100 to use android 4.x"],
 	'au': [(lambda: repart_android_ubuntu()), "EXPERIMENTAL repartition ac100 to use ubuntu + android 4.x"],
+	's': [(lambda: uboot_sos()), "load uboot sos image to ac100. Could be used to repart ac100 with gpt."],
 } 
 
 
@@ -67,7 +77,8 @@ def init_externals():
 	if  os.path.isfile(bct_dump()) and \
 		os.path.isfile(cbootimage()) and \
 		os.path.isfile(externals() + "nvflash/nvflash") and \
-		os.path.isfile(externals() + "gpt_surgeon.py"):
+		os.path.isfile(externals() + "gpt_surgeon.py") and \
+		os.path.isfile(externals() + "uboot-sos.img"):
 				return None
 	
 	print "Initialize externals..."
