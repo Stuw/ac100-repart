@@ -14,24 +14,28 @@ function set_error() {
 	RES=1
 }
 
+function msg() {
+	echo $@ | tee -a "$log_file"
+}
+
 # nvflash
 nvflash_zip_url="http://stuw.narod.ru/ac100/nvflash-12alpha.zip"
 #if [[ ! -e "${EXTERNALS}/nvflash" ]]; then
-	echo "Downloading nvflash..."
-	wget "$nvflash_zip_url" -P "$EXTERNALS" > "${log_file}" 2>&1 || set_error
-	echo "Unpacking nvflash..."
-	unzip -u ./externals/nvflash-12alpha.zip -d "$EXTERNALS" > ${log_file} 2>&1 || set_error
+	msg "Downloading nvflash..."
+	wget "$nvflash_zip_url" -P "$EXTERNALS" >> "${log_file}" 2>&1 || set_error
+	msg "Unpacking nvflash..."
+	unzip -u ./externals/nvflash-12alpha.zip -d "$EXTERNALS" >> ${log_file} 2>&1 || set_error
 	chmod a+x "${EXTERNALS}/nvflash/nvflash" || set_error
 	chmod a+x "${EXTERNALS}/nvflash/mkbootimg" || set_error
-	echo "Done."
+	msg "Done."
 #fi
 
 # uboot sos image
 if [[ ! -e "${EXTERNALS}/uboot-sos.img" ]]; then
-	echo "Downloading uboot sos image..."
+	msg "Downloading uboot sos image..."
 	wget http://ac100.wikispaces.com/file/view/\
-uboot-sos.img/398037302/uboot-sos.img -P "$EXTERNALS" > "${log_file}" 2>&1 || set_error
-	echo "Done."
+uboot-sos.img/398037302/uboot-sos.img -P "$EXTERNALS" >> "${log_file}" 2>&1 || set_error
+	msg "Done."
 fi
 
 
@@ -39,10 +43,10 @@ fi
 gpt_surgeon_url="http://bat-country.us/code/GPTools/trunk/gpt_surgeon.py?revision=130&view=co"
 gpt_surgeon="${EXTERNALS}/gpt_surgeon.py"
 if [[ ! -e "${gpt_surgeon}" ]]; then
-	echo "Downloading gpt-surgeon..."
-	wget "${gpt_surgeon_url}" -O "${gpt_surgeon}" > "${log_file}" 2>&1 || set_error
+	msg "Downloading gpt-surgeon..."
+	wget "${gpt_surgeon_url}" -O "${gpt_surgeon}" >> "${log_file}" 2>&1 || set_error
 	chmod a+x "${gpt_surgeon}" || set_error
-	echo "Done."
+	msg "Done."
 fi
 
 
@@ -51,29 +55,29 @@ function git_repo() {
 	local repo="$2"
 
 	if [[ ! -e $dir ]]; then
-		echo "Cloning $dir..."
-		git clone $repo $dir > "${log_file}" 2>&1 || set_error
-		pushd $dir > "${log_file}" 2>&1 || set_error
+		msg "Cloning $dir..."
+		git clone $repo $dir >> "${log_file}" 2>&1 || set_error
+		pushd $dir >> "${log_file}" 2>&1 || set_error
 	else
-		echo "Updating $dir..."
-		pushd $dir > "${log_file}" 2>&1 || set_error
-		git clean -fdx > "${log_file}" 2>&1 || set_error
-		git pull > "${log_file}" 2>&1 || set_error
+		msg "Updating $dir..."
+		pushd $dir >> "${log_file}" 2>&1 || set_error
+		git clean -fdx >> "${log_file}" 2>&1 || set_error
+		git pull >> "${log_file}" 2>&1 || set_error
 	fi
-	echo "Done."
+	msg "Done."
 }
 
 
-pushd "$EXTERNALS" > /dev/null
+pushd "$EXTERNALS" >> /dev/null
 
 
 # cbootimg / bct_dump
 cbootimg_repo="-b master git://gitorious.org/cbootimage/cbootimage.git"
 git_repo "cbootimage" "$cbootimg_repo"
-echo "Compiling cbootimage..."
-make > "${log_file}" 2>&1 || set_error
-echo "Done."
-popd > /dev/null
+msg "Compiling cbootimage..."
+make >> "${log_file}" 2>&1 || set_error
+msg "Done."
+popd >> /dev/null
 
 
 # uboot
@@ -85,6 +89,6 @@ popd > /dev/null
 
 
 # EXTERNALS
-popd > /dev/null
+popd >> /dev/null
 
 exit $RES
