@@ -8,7 +8,7 @@ import textwrap
 sys.path.insert(0, os.path.relpath("./modules"))
 from menu import menu, print_commands
 from nvflash import init
-from common import bct_dump, cbootimage, externals, generated
+from common import bct_dump, cbootimage, externals, generated, log_file
 from bct import *
 from ac100 import AC100
 
@@ -82,7 +82,7 @@ def init_externals():
 				return None
 	
 	print "Initialize externals..."
-	res = execute("./init-externals.sh ./generated/init.log")
+	res = execute("./init-externals.sh \"%s\"" % log_file())
 	if res != 0:
 		print "Failed with code %d.\nLog file is ./generated/init.log" % res
 		quit()

@@ -69,6 +69,11 @@ def ac100_bct():
 	return binaries() + "ac100.bct"
 
 
+# Generated
+def log_file():
+	return generated() + "repart.log"
+
+
 # Perform cwd initialization	
 if __name__ != '__main__': 
 	cwd()
