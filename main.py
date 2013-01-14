@@ -82,12 +82,11 @@ def init_externals():
 				return None
 	
 	print "Initialize externals..."
-	res = execute("./init-externals.sh > ./generated/init.log 2>&1")
+	res = execute("./init-externals.sh ./generated/init.log")
 	if res != 0:
 		print "Failed with code %d.\nLog file is ./generated/init.log" % res
 		quit()
-	else: 
-		print "Done.\n"
+	print
 
 
 if __name__ == '__main__':

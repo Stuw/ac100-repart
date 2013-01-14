@@ -20,7 +20,7 @@ import os
 import subprocess
 
 
-def execute( command, verbose = True ):
+def execute( command, verbose = False ):
 	if verbose:
 		print 'cmd "%s" ...' % command 
 
