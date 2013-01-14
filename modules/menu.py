@@ -7,9 +7,9 @@ import textwrap
 
 def print_commands(prompt, commands): 
 	sys.stdout.write(textwrap.dedent("%s\n") % prompt) 
-	for cmd in commands:
-		print "%s - %s" % (cmd, commands[cmd][1])
 
+	for cmd in sorted(commands.keys()):
+		print "%s - %s" % (cmd, commands[cmd][1])
 
 def quit(): 
 	raise SystemExit() 
