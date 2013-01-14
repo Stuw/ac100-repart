@@ -8,13 +8,36 @@ import sys
 from common import ac100_bct, binaries, configs, generated
 from bct import gen_bct
 from update import generate_new_partitions
-from nvflash import init, repart, backup_partitiontable, push_part
+from nvflash import init, repart, backup_partitiontable, push_part, get_raw_data
 
 
 class AC100:
 	def __init__(self):
 		print "AC100 class init"
 		return None
+
+
+	def repart_gpt_ex(self, bootloader, config):
+		print "AC100 repartition for uboot (BCT DUMP)"
+
+		# TODO: dump bct !
+		res = init()
+		if res != 0:
+			return res
+
+		bct = generated() + "ac100-dumped.bct"
+		res = get_raw_data(0, 2, generated() + "ac100-dumped.bct")
+		if res != 0:
+			return res
+
+		self.bootloader = binaries() + bootloader
+		self.config = configs() + config
+
+		(res, self.bct) = gen_bct(self.bootloader, bct)
+		if res != 0:
+			return res
+
+		return self.repart()
 
 
 	def repart_gpt(self, bootloader, config):
