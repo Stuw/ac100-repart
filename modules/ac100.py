@@ -5,7 +5,7 @@ import os.path
 import shutil
 import sys
 
-from common import ac100_bct, binaries, configs, generated
+from common import ac100_bct_dump, binaries, configs, generated
 from bct import gen_bct
 from update import generate_new_partitions
 from nvflash import init, repart, backup_partitiontable, push_part, get_raw_data
@@ -13,31 +13,23 @@ from nvflash import init, repart, backup_partitiontable, push_part, get_raw_data
 
 class AC100:
 	def __init__(self):
-		print "AC100 class init"
 		return None
 
 
-	def repart_gpt_ex(self, bootloader, config):
-		print "AC100 repartition for uboot (BCT DUMP)"
+	def check_bct(self):
+		if os.path.isfile(ac100_bct_dump()):
+			return 0
 
-		# TODO: dump bct !
+		print "AC100 generate BCT DUMP"
 		res = init()
 		if res != 0:
 			return res
 
-		bct = generated() + "ac100-dumped.bct"
-		res = get_raw_data(0, 2, generated() + "ac100-dumped.bct")
+		res = get_raw_data(0, 2, ac100_bct_dump())
 		if res != 0:
 			return res
 
-		self.bootloader = binaries() + bootloader
-		self.config = configs() + config
-
-		(res, self.bct) = gen_bct(self.bootloader, bct)
-		if res != 0:
-			return res
-
-		return self.repart()
+		return 0
 
 
 	def repart_gpt(self, bootloader, config):
@@ -45,8 +37,11 @@ class AC100:
 
 		self.bootloader = binaries() + bootloader
 		self.config = configs() + config
+		self.bct = ac100_bct_dump()
+		if not self.check_files():
+			return 2
 
-		(res, self.bct) = gen_bct(self.bootloader)
+		(res, self.bct) = gen_bct(self.bootloader, self.bct)
 		if res != 0:
 			return res
 
@@ -57,8 +52,11 @@ class AC100:
 		print "AC100 repartition for vendor scheme"
 		self.bootloader = binaries() + bootloader
 		self.config = configs() + config
+		self.bct = ac100_bct_dump()
+		if not self.check_files():
+			return 2
 
-		(res, self.bct) = gen_bct(self.bootloader)
+		(res, self.bct) = gen_bct(self.bootloader, self.bct)
 		if res != 0:
 			return res
 
@@ -83,11 +81,18 @@ class AC100:
 
 
 	def check_files(self):
-		if  not os.path.isfile(self.bootloader) or \
-			not os.path.isfile(self.bct) or \
-			not os.path.isfile(self.config):
-				return False
-		return True
+		res = True
+		if not os.path.isfile(self.bootloader):
+			print "Can't find %s" % self.bootloader
+			res = False
+		if not os.path.isfile(self.bct):
+			print "Can't find %s" % self.bct
+			res = False
+		if not os.path.isfile(self.config):
+			print "Can't find %s" % self.config
+			res = False
+
+		return res
 
 
 	def prepare_bootloader(self):
@@ -116,7 +121,6 @@ class AC100:
 		print "  cfg: %s" % self.config
 
 		if not self.check_files():
-			print "Error: not all files are exist"
 			return 2
 
 		if not self.prepare_bootloader():

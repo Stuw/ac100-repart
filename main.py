@@ -17,14 +17,6 @@ def quit():
 	raise SystemExit() 
 
 
-def repart_gpt_uboot_ex():
-	ac100 = AC100()
-	res = ac100.repart_gpt_ex("uboot-ac100.bin", "part-gpt-uboot.cfg")
-	print "Repartitioning finished with code %d" % res
-
-	return res
-
-
 def repart_gpt_uboot():
 	ac100 = AC100()
 	res = ac100.repart_gpt("uboot-ac100.bin", "part-gpt-uboot.cfg")
@@ -67,10 +59,18 @@ def uboot_sos():
 	return res
 
 
+def dump_bct():
+	ac100 = AC100()
+	if ac100.check_bct() != 0:
+		print "Failed to dump BCT"
+	else:
+		print "Re-run your ac100 in recovery mode once again"
+
+
 main_commands = { 
 	'q': [(lambda: quit()), "quit"], 
+	'd': [(lambda: dump_bct()), "! dump original BCT, required for repartition"],
 	'u': [(lambda: repart_gpt_uboot()), "repartition ac100 to use u-boot"],
-	'ux': [(lambda: repart_gpt_uboot_ex()), "EXPERIMENTAL repartition ac100 to use u-boot WITHOUT PT"],
 	'f1': [(lambda: repart_gpt_fastboot(1)), "EXPERIMENTAL repartition ac100 to use gpt and fastboot 2.2 (boot size is 1M)"],
 	'f2': [(lambda: repart_gpt_fastboot(2)), "EXPERIMENTAL repartition ac100 to use gpt and fastboot 2.1 (boot size is 2M)"],
 	'a4': [(lambda: repart_android4()), "repartition ac100 to use android 4.x"],
@@ -100,6 +100,7 @@ def init_externals():
 
 if __name__ == '__main__':
 	init_externals()
+
 
 	print_commands("Select a command: ", main_commands)
 	while True:

@@ -64,14 +64,13 @@ def fastboot():
 	return externals() + "nvflash/fastboot.bin"
 
 
-# Binaries
-def ac100_bct():
-	return binaries() + "ac100.bct"
-
-
 # Generated
 def log_file():
 	return generated() + "repart.log"
+
+
+def ac100_bct_dump():
+	return generated() + "ac100-dump.bct"
 
 
 # Perform cwd initialization	

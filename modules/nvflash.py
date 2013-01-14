@@ -84,7 +84,7 @@ def push_part(id, file):
 
 
 def get_raw_data(start, size, file):
-	return execute('sudo "%s" -r --rawdeviceread %d %d "%s" --sync"' % (nvflash(), start, size, file))
+	return execute('sudo "%s" -r --rawdeviceread %d %d "%s" --sync' % (nvflash(), start, size, file))
 
 
 if __name__ == '__main__': 
