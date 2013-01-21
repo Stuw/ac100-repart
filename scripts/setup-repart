@@ -1,0 +1,88 @@
+#!/bin/sh
+
+srcdir="$1"
+workdir="/tmp/$(basename $0)"
+
+config_file="default.cfg"
+if [ -n "$2" ]; then
+	config_file="$2"
+fi
+
+GPT_HDR=34
+repart_cmd="unit s
+mklabel gpt"
+
+
+prepare()
+{
+	mkdir -p "$workdir"
+
+	cp "${srcdir}/android.cfg" "${workdir}" || return 1
+	cp "${srcdir}/linux.cfg" "${workdir}" || return 1
+
+	cd "$workdir"
+
+	#dd if=/dev/zero of="image-8G.bin" bs=10M count=1
+	#truncate -s $((8*1024*1024*1024)) "image-8G.bin"
+
+	return 0
+}
+
+
+main()
+{
+	prepare
+	if [ $? -ne "0" ]; then
+		echo "Preparation failed."
+		return 1
+	fi
+
+	device="/dev/mmcblk0"
+	disk_size="$(blockdev --getsize ${device})"
+	#device="image-8G.bin"
+	#disk_size=$(( $(stat -c%s ${device}) / 512 ))
+	echo "Disk size: $disk_size"
+	
+	i=1
+	first_free=$GPT_HDR
+	
+	cfg=$(cat $config_file)
+	if [ -z "$cfg" ]; then
+		echo "Config file $config_file was not found."
+		return 1
+	fi
+
+	for rec in $cfg
+	do
+		name="${rec%=*}"
+		size="${rec#*=}"
+		if [ $size == "-1" ]; then
+			size=$(( $disk_size - $GPT_HDR - $first_free ))
+		fi
+	
+		start=$first_free
+		end=$(( $start + $size ))
+		first_free=$(( $end + 1 ))
+
+		part_cmd="
+mkpart primary $start $end
+name $i $name"
+	
+		repart_cmd="${repart_cmd}${part_cmd}"
+		i=$(( $i + 1 ))
+	done 
+	
+	repart_cmd="${repart_cmd}
+print
+quit"
+	
+	echo $repart_cmd
+	
+	parted $device << EOF
+$repart_cmd
+EOF
+	
+}
+
+
+main
